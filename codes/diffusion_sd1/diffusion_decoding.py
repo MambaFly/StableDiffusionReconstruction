@@ -99,7 +99,7 @@ def main():
     captdir = f'../../decoded/{subject}/captions/'
 
     # Load NSD information
-    # 加载NSD数据集( ../../ 相对于当前文件的上一级的上一级 )
+    # 加载NSD实验设计信息( ../../ 相对于当前文件的上一级的上一级 )
     nsd_expdesign = scipy.io.loadmat('../../nsd/nsddata/experiments/nsd/nsd_expdesign.mat')
 
     # Note that mos of them are 1-base index!
@@ -123,15 +123,16 @@ def main():
             tr_idx[idx] = 1
 
     # Load Stable Diffusion Model
-    # 加载 SD 模型和参数
+    # 加载 sd-v1-4 模型和参数
     config = './stable-diffusion/configs/stable-diffusion/v1-inference.yaml'
     ckpt = './stable-diffusion/models/ldm/stable-diffusion-v1/sd-v1-4.ckpt'
     config = OmegaConf.load(f"{config}")
     torch.cuda.set_device(gpu)
     model = load_model_from_config(config, f"{ckpt}", gpu)
 
+    # 设置超参数
     n_samples = 1
-    ddim_steps = 50
+    ddim_steps = 50 #采样步数
     ddim_eta = 0.0
     strength = 0.8
     scale = 5.0
