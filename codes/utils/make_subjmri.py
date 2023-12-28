@@ -21,7 +21,7 @@ def main():
     subject = opt.subject
     atlasname = 'streams'
 
-    # 调用nsd数据获取函数
+    # 访问NSD，获取nsd实验设计
     nsda = NSDAccess('../../nsd/')
     nsd_expdesign = scipy.io.loadmat('../../nsd/nsddata/experiments/nsd/nsd_expdesign.mat')
 
@@ -29,7 +29,7 @@ def main():
     # This is why subtracting 1
     sharedix = nsd_expdesign['sharedix'] -1 
 
-    # read_behavior 读取行为数据
+    # 读取该subject在session1-38中的行为数据
     behs = pd.DataFrame()
     for i in range(1,38):
         beh = nsda.read_behavior(subject=subject, 
@@ -49,7 +49,8 @@ def main():
         np.save(f'{savedir}/{subject}_stims.npy',stims_all)
         np.save(f'{savedir}/{subject}_stims_ave.npy',stims_unique)
 
-    # read_betas 读取betas文件
+    # read_betas 
+    # 读取betas文件
     for i in range(1,38):
         print(i)
         beta_trial = nsda.read_betas(subject=subject, 
@@ -62,7 +63,8 @@ def main():
         else:
             betas_all = np.concatenate((betas_all,beta_trial),0)    
 
-    # read_atlas_results 读取Altas结果
+    # read_atlas_results
+    # 读取atlas结果(获取具体的脑区)
     atlas = nsda.read_atlas_results(subject=subject, atlas=atlasname, data_format='func1pt8mm')
     for roi,val in atlas[1].items():
         print(roi,val)
@@ -93,7 +95,7 @@ def main():
                 betas_te.append(betas_roi[idx,:])
             else:
                 betas_tr.append(betas_roi[idx,:])
-
+        # betas_train/test
         betas_tr = np.stack(betas_tr)
         betas_te = np.stack(betas_te)    
         
@@ -106,6 +108,7 @@ def main():
                 betas_ave_te.append(betas_roi_ave[idx,:])
             else:
                 betas_ave_tr.append(betas_roi_ave[idx,:])
+        # betas_average_train/test
         betas_ave_tr = np.stack(betas_ave_tr)
         betas_ave_te = np.stack(betas_ave_te)    
         
