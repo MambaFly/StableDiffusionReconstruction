@@ -16,13 +16,15 @@ from pycocotools.coco import COCO
 
 from IPython import embed
 
-
+'''
+封装函数用于——获取NSD数据集
+'''
 class NSDAccess(object):
     """
     Little class that provides easy access to the NSD data, see [http://naturalscenesdataset.org](their website)
     """
-
     def __init__(self, nsd_folder, *args, **kwargs):
+        # 文件路径初始化
         super().__init__(*args, **kwargs)
         self.nsd_folder = nsd_folder
         self.nsddata_folder = op.join(self.nsd_folder, 'nsddata')
@@ -41,6 +43,7 @@ class NSDAccess(object):
             self.nsd_folder, 'nsddata_stimuli', 'stimuli', 'nsd', 'annotations', '{}_{}.json')
 
     def download_coco_annotation_file(self, url='http://images.cocodataset.org/annotations/annotations_trainval2017.zip'):
+        # 下载Coco2017数据集的注释信息
         """download_coco_annotation_file downloads and extracts the relevant annotations files
 
         Parameters
@@ -55,6 +58,7 @@ class NSDAccess(object):
             op.split(self.coco_annotation_file)[0])[0])
 
     def affine_header(self, subject, data_format='func1pt8mm'):
+        # 构建nii文件的affine和header
         """affine_header affine and header, for construction of Nifti image
 
         Parameters
@@ -78,6 +82,7 @@ class NSDAccess(object):
         return nii.affine, nii.header
 
     def read_vol_ppdata(self, subject, filename='brainmask', data_format='func1pt8mm'):
+        # 读取brainmask文件
         """load_brainmask, returns boolean brainmask for volumetric data formats
 
         Parameters
@@ -100,6 +105,7 @@ class NSDAccess(object):
         return nb.load(full_path).get_data()
 
     def read_betas(self, subject, session_index, trial_index=[], data_type='betas_fithrf_GLMdenoise_RR', data_format='fsaverage', mask=None):
+        # 读取fMRI的betas版本
         """read_betas read betas from MRI files
 
         Parameters
@@ -168,6 +174,7 @@ class NSDAccess(object):
 
 
     def read_mapper_results(self, subject, mapper='prf', data_type='angle', data_format='fsaverage'):
+        # 读取mapper的结果
         """read_mapper_results [summary]
 
         Parameters
@@ -195,6 +202,7 @@ class NSDAccess(object):
             return self.read_vol_ppdata(subject=subject, filename=f'{mapper}_{data_type}', data_format=data_format)
 
     def read_atlas_results(self, subject, atlas='HCP_MMP1', data_format='fsaverage'):
+        # 读取atlas的结果
         """read_atlas_results [summary]
 
         Parameters
@@ -253,6 +261,7 @@ class NSDAccess(object):
             return nb.load(ipf).get_fdata(), atlas_mapping
 
     def list_atlases(self, subject, data_format='fsaverage', abs_paths=False):
+        # 返回atlases的列表
         """list_atlases [summary]
 
         Parameters
@@ -288,6 +297,7 @@ class NSDAccess(object):
             return np.unique([op.split(f)[1].replace('lh.', '').replace('rh.', '').replace('.mgz', '').replace('.nii.gz', '') for f in atlas_files])
 
     def read_behavior(self, subject, session_index, trial_index=[]):
+        # 读取某次session试验的行为信息
         """read_behavior [summary]
 
         Parameters
@@ -319,6 +329,7 @@ class NSDAccess(object):
         return session_behavior.iloc[trial_index]
 
     def read_images(self, image_index, show=False):
+        # 读取图像
         """read_images reads a list of images, and returns their data
 
         Parameters
@@ -351,6 +362,7 @@ class NSDAccess(object):
         return sdataset[image_index]
 
     def read_image_coco_info(self, image_index, info_type='captions', show_annot=False, show_img=False):
+        # 读取coco图像注释信息
         """image_coco_info returns the coco annotations of a single image or a list of images
 
         Parameters
@@ -440,6 +452,7 @@ class NSDAccess(object):
         return coco_annot
 
     def read_image_coco_category(self, image_index):
+        # 读取coco图像类别信息
         """image_coco_category returns the coco category of a single image or a list of images
         
         Args:
