@@ -13,7 +13,7 @@ from PIL import Image
 from ldm.util import instantiate_from_config
 from ldm.models.diffusion.ddim import DDIMSampler
 
-
+# 加载ckpt模型
 def load_model_from_config(config, ckpt, gpu, verbose=False):
     print(f"Loading model from {ckpt}")
     pl_sd = torch.load(ckpt, map_location="cpu")
@@ -32,6 +32,7 @@ def load_model_from_config(config, ckpt, gpu, verbose=False):
     model.eval()
     return model
 
+# 加载coco图像
 def load_img_from_arr(img_arr,resolution):
     image = Image.fromarray(img_arr).convert("RGB")
     w, h = resolution, resolution
@@ -43,8 +44,8 @@ def load_img_from_arr(img_arr,resolution):
 
 def main():
 
+    # 初始化参数设置
     parser = argparse.ArgumentParser()
-
     parser.add_argument(
         "--imgidx",
         required=True,
@@ -66,6 +67,7 @@ def main():
     )
 
     # Set Parameters
+    # 设定超参数
     opt = parser.parse_args()
     seed_everything(opt.seed)
     imgidx = opt.imgidx
@@ -85,6 +87,7 @@ def main():
     os.makedirs(f'../../nsdfeat/c/', exist_ok=True)
 
     # Load moodels
+    # 加载模型
     precision = 'autocast'
     precision_scope = autocast if precision == "autocast" else nullcontext
     model = load_model_from_config(config, f"{ckpt}", gpu)
@@ -97,13 +100,15 @@ def main():
     print(f"target t_enc is {t_enc} steps")
 
     # Sample
+    # 采样，对每一张图像
     for s in tqdm(range(imgidx[0],imgidx[1])):
         print(f"Now processing image {s:06}")
+        # 获取coco图像数据集的caption
         prompt = []
         prompts = nsda.read_image_coco_info([s],info_type='captions')
         for p in prompts:
             prompt.append(p['caption'])    
-        
+        # 原始图像--编码-->初始latent
         img = nsda.read_images(s)
         init_image = load_img_from_arr(img,resolution).to(device)
         init_image = repeat(init_image, '1 ... -> b ...', b=batch_size)
@@ -112,15 +117,18 @@ def main():
         with torch.no_grad():
             with precision_scope("cuda"):
                 with model.ema_scope():
+                    # 从学习后的大脑字幕中编码得到c
                     uc = model.get_learned_conditioning(batch_size * [""])
                     c = model.get_learned_conditioning(prompt).mean(axis=0).unsqueeze(0)
 
                     # encode (scaled latent)
+                    # 将初始latent编码得到zT
                     z_enc = sampler.stochastic_encode(init_latent, torch.tensor([t_enc]*batch_size).to(device))
                     # decode it
+                    # 将zT、c以及步数t一起用于解码
                     samples = sampler.decode(z_enc, c, t_enc, unconditional_guidance_scale=scale,
                                             unconditional_conditioning=uc,)
-                    
+        # 保存初始latent和c  
         init_latent = init_latent.cpu().detach().numpy().flatten()
         c = c.cpu().detach().numpy().flatten()
         np.save(f'../../nsdfeat/init_latent/{s:06}.npy',init_latent)
