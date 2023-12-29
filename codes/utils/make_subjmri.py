@@ -6,6 +6,7 @@ from nsd_access import NSDAccess
 import scipy.io
 '''
 fMRI数据预处理
+对某一个subject处理得到该实验对象特定脑区roi的训练和测试数据集
 '''
 def main():
     # 设置参数
