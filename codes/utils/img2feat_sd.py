@@ -13,6 +13,10 @@ from PIL import Image
 from ldm.util import instantiate_from_config
 from ldm.models.diffusion.ddim import DDIMSampler
 
+'''
+从大脑活动中抽取初级和高级特征
+'''
+
 # 加载ckpt模型
 def load_model_from_config(config, ckpt, gpu, verbose=False):
     print(f"Loading model from {ckpt}")
