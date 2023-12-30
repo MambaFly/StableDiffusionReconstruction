@@ -168,7 +168,7 @@ def main():
         os.path.join(sample_path, f"{imgidx:05}_org.png"))    
     
     if method in ['cvpr','text']:
-        # 提取早期视觉
+        # 提取早期视觉特征 z
         roi_latent = 'early'
         scores_latent = np.load(f'../../decoded/{subject}/{subject}_{roi_latent}_scores_init_latent.npy')
         imgarr = torch.Tensor(scores_latent[imgidx,:].reshape(4,40,40)).unsqueeze(0).to('cuda')
@@ -185,6 +185,7 @@ def main():
                     
                     for x_sample in x_samples:
                         x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+        # resized copy
         im = Image.fromarray(x_sample.astype(np.uint8)).resize((512,512))
         im = np.array(im)
 
