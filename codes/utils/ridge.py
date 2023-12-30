@@ -5,9 +5,12 @@ from himalaya.ridge import RidgeCV
 from himalaya.scoring import correlation_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-
+'''
+做回归
+'''
 def main():
 
+    # 参数设置
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -37,6 +40,7 @@ def main():
     backend = set_backend("numpy", on_error="warn")
     subject=opt.subject
 
+    # 不同的特征和不同的算法
     if target == 'c' or target == 'init_latent': # CVPR
         alpha = [0.000001,0.00001,0.0001,0.001,0.01, 0.1, 1]
     else: # text / GAN / depth decoding (with much larger number of voxels)
@@ -71,7 +75,8 @@ def main():
     
     Y = np.load(f'{featdir}/{subject}_each_{target}_tr.npy').astype("float32").reshape([X.shape[0],-1])
     Y_te = np.load(f'{featdir}/{subject}_ave_{target}_te.npy').astype("float32").reshape([X_te.shape[0],-1])
-    
+
+    # 解码并计算准确率
     print(f'Now making decoding model for... {subject}:  {roi}, {target}')
     print(f'X {X.shape}, Y {Y.shape}, X_te {X_te.shape}, Y_te {Y_te.shape}')
     pipeline.fit(X, Y)
